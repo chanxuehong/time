@@ -43,13 +43,21 @@ func Unix(sec int64, nsec int64) Time { return Time{Time: time.Unix(sec, nsec)} 
 var _ driver.Valuer = Time{}
 var _ sql.Scanner = (*Time)(nil)
 
-// Value implements the driver.Valuer interface. convert Time to unixtime.
+// Value implements the driver.Valuer interface.
+// It converts Time to unixtime, zero Time converts to 0.
 func (t Time) Value() (value driver.Value, err error) {
-	value = t.Unix()
+	if t.IsZero() {
+		value = 0
+	} else {
+		value = t.Unix()
+	}
 	return
 }
 
-// Scan implements the sql.Scanner interface. scan unixtime to Time, zero unixtime means zero Time.
+var zeroTime time.Time
+
+// Scan implements the sql.Scanner interface.
+// It scans unixtime to Time, 0 means zero Time.
 func (t *Time) Scan(value interface{}) (err error) {
 	if value == nil {
 		return errors.New("Can't convert nil value to Time")
@@ -59,7 +67,7 @@ func (t *Time) Scan(value interface{}) (err error) {
 		return
 	}
 	if unixtime == 0 {
-		t.Time = time.Time{}
+		t.Time = zeroTime
 	} else {
 		t.Time = time.Unix(unixtime, 0)
 	}
