@@ -11,7 +11,7 @@ const (
 	BeijingToUTC = -UTCToBeijing
 )
 
-var BeijingLocation = time.FixedZone("UTC+8", UTCToBeijing)
+var BeijingLocation = time.FixedZone("Asia/Shanghai", UTCToBeijing)
 
 // UTC unixtime 转换为 北京时间 unixtime.
 func UTCUnixToBeijingUnix(n int64) int64 {
